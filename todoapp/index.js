@@ -1,35 +1,40 @@
 var express = require('express');
 var app = express();
 var cors = require('cors');
-app.use(cors());
 
 var server = require('http').Server(app);
-var mysql = require('mysql');
+
 var port = (process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 6969);
 server.listen(port, () => console.log('Server running in port ' + port));
 
-var conn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: null,
-    database: 'todo'
-    });
-conn.on('error', function(err) {
-        console.log("[mysql error]",err);
-      });
+var db = require('./database');
+const internal = require('stream');
+
+app.use(cors());
+app.use(express.json())
+app.use(express.urlencoded({extended:false}));
 
 app.get('/', (req, res) => {
     res.send("Home page. Server running okay.");
     console.log("connect");
 })
-app.get('/todo', (req, res,next) => {
+app.get('/todo', (req, res) => {
     var sql ="select * from todos";
-    conn.query(sql, function(err,response){
+    db.query(sql, function(err,response){
         res.send(response)
     })
 })
-app.post('/todo/new', (err, res,body) => {
-    console.log(err)
-    console.log(body)
-    res.send(body.json)
+app.post('/todo/new', function(req, res){
+    //console.log(req.body.userObject.message)
+    if(req.body.m.message){
+        var sql = "insert into todos (id,message) values ('null','"+req.body.m.message+"')";
+        db.query(sql, function(err){
+           if(err){
+               res.send("Loi")
+           }
+           else{
+            res.send(req.body.m.message)
+           }
+        })
+    }
 })

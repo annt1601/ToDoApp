@@ -16,6 +16,9 @@ export default class TodoApp extends Component {
     enterKey(e) {
         if (e.keyCode === 13) {
             this.props.sendMessage(this.state.value);
+            this.setState({
+              value:''
+            });
         }
     }
   render(){

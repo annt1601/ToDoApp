@@ -8,14 +8,14 @@ class App extends Component{
   constructor(props){
     super(props);
     this.state = {
-      message:'a',
+      message:'',
       messages:''
     };
     this.sendMessageToServer = this.sendMessageToServer.bind(this);
   }
   componentDidMount() {
     axios.get("http://localhost:6969/todo").then((res) => {
-      console.log(res.data)
+      //console.log(res.data)
       this.setState({
         messages:res.data
       });
@@ -25,21 +25,27 @@ class App extends Component{
     });
   }
   sendNewMessage(m){
-    console.log(m)
     this.setState({
-      message : m
+      message : m,
     });
-    console.log(this.state.message)
-    this.sendMessageToServer();
+    var a = this.state.messages
+    a.push({
+      message:m
+    })
   }
+  componentDidUpdate(){
+    if(this.state.message){
+      this.sendMessageToServer();
+    }
+  }
+  
   sendMessageToServer(){
-    const userObject = {
+    const m = {
       message: this.state.message,
   };
-  axios.post('http://localhost:6969/todo/new', {userObject})
+  axios.post('http://localhost:6969/todo/new',{m})
       .then((res) => {
-        console.log(`Status: ${res.status}`);
-        console.log('Body: ', res.data);
+ 
       }).catch((error) => {
           console.log(error)
       });
